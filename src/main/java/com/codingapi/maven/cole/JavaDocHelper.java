@@ -31,11 +31,8 @@ public class JavaDocHelper {
     }
 
 
-    public static void show(Class<?> clazz,String savePath){
+    public static void show(Class<?> clazz,List<Markdown> markdowns,List<Link> links){
         ClassDoc[] classes = rootDoc.classes();
-
-        List<Link> links = new ArrayList<>();
-        List<Markdown> markdowns = new ArrayList<>();
         for(ClassDoc classDoc : classes){
             String commentText = classDoc.commentText();
             JavaDocParser javaDocParser = new JavaDocParser(commentText);
@@ -47,13 +44,8 @@ public class JavaDocHelper {
             links.add(link);
             markdowns.add(markdown);
         }
-
-        for(Markdown markdown:markdowns) {
-            MarkdownWriter markdownWriter = new MarkdownWriter(markdown,links);
-            markdownWriter.parser();
-            markdownWriter.save(savePath);
-        }
     }
+
 
 
 }

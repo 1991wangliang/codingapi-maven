@@ -13,6 +13,8 @@ import org.reflections.Reflections;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Mojo(name = "cola",requiresDependencyResolution = ResolutionScope.COMPILE)
@@ -33,6 +35,9 @@ public class ColaMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project.build.sourceDirectory}",required = true,readonly = true)
     private File sourceDir;
 
+    private List<Markdown> markdowns = new ArrayList<>();
+    private List<Link> links = new ArrayList<>();
+
     @SneakyThrows
     public void execute() throws MojoExecutionException, MojoFailureException {
         getLog().info("scannerPackage:"+scannerPackage);
@@ -41,11 +46,21 @@ public class ColaMojo extends AbstractMojo {
         Reflections reflections = new Reflections(scannerPackage,URLClassLoader.newInstance(urls));
         Set<Class<?>> classSet =  reflections.getTypesAnnotatedWith(Executor.class);
         getLog().info("classSet:"+classSet.size());
+
         for (Class<?> clazz:classSet){
             String path = String.format("%s\\%s.java",sourceDir,clazz.getName().replaceAll("\\.","\\\\"));
             getLog().info("path:"+path);
             JavaDocHelper.init(outputDirectory.getAbsolutePath(),path);
-            JavaDocHelper.show(clazz,outputMarkdown);
+            JavaDocHelper.show(clazz,markdowns,links);
+        }
+        save();
+    }
+
+    public void save(){
+        for(Markdown markdown:markdowns) {
+            MarkdownWriter markdownWriter = new MarkdownWriter(markdown,links);
+            markdownWriter.write();
+            markdownWriter.save(outputMarkdown);
         }
     }
 

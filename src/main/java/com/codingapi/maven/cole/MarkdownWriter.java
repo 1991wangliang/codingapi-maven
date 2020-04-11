@@ -4,6 +4,7 @@ import org.aspectj.util.FileUtil;
 
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MarkdownWriter {
 
@@ -17,7 +18,7 @@ public class MarkdownWriter {
         this.content = new StringBuilder();
     }
 
-    public void parser(){
+    public void write(){
         append(markdown.getTitle());
         br();
         append(markdown.getSubtitle());
@@ -30,14 +31,24 @@ public class MarkdownWriter {
     }
 
     private void link() {
-        if(links!=null&&links.size()>0){
+        if(markdown.getLinks()!=null&&markdown.getLinks().size()>0) {
             append("links:");
-        }
-        for(Link link:links){
-            if(markdown.getLinks().contains(link.getName())) {
-                append("[" + link.getTitle() + "](" + link.getUrl() + ")");
+            for (String link : markdown.getLinks()) {
+                Link leader = getLink(link);
+                if (leader != null) {
+                    append("[" + leader.getTitle() + "](" + leader.getUrl() + ")  ");
+                }
             }
         }
+    }
+
+    private Link getLink(String link){
+        for(Link item:links){
+            if(item.getName().equals(link)){
+                return item;
+            }
+        }
+        return null;
     }
 
     private void table(){

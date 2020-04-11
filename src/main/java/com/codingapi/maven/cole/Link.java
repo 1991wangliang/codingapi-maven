@@ -11,6 +11,10 @@ public class Link {
     }
 
     public void setTitle(String title) {
+        if(title!=null){
+            title = title.replaceFirst("#","");
+            title = title.trim();
+        }
         this.title = title;
     }
 
