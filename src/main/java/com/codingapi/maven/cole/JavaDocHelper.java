@@ -18,7 +18,7 @@ public class JavaDocHelper {
         }
     }
 
-    public static void init(String targetPath, List<String> javaList){
+    public static void init(String targetPath,String javaPath){
         List<String> params = new ArrayList<>();
         params.add("-doclet");
         params.add(JavaDocHelper.Doclet.class.getName());
@@ -26,17 +26,17 @@ public class JavaDocHelper {
         params.add("utf-8");
         params.add("-classpath");
         params.add(targetPath);
-        params.addAll(javaList);
+        params.add(javaPath);
         com.sun.tools.javadoc.Main.execute(params.toArray(new String[]{}));
     }
 
 
-    public static void show(){
+    public static void show(Class<?> clazz){
         ClassDoc[] classes = rootDoc.classes();
         for(ClassDoc classDoc : classes){
             String commentText = classDoc.commentText();
             JavaDocParser javaDocParser = new JavaDocParser(commentText);
-            Markdown markdown =  javaDocParser.parser();
+            Markdown markdown =  javaDocParser.parser(clazz.getSimpleName(),MarkdownType.parser(clazz));
             markdown.print();
         }
     }

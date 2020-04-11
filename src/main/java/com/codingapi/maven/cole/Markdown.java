@@ -5,6 +5,10 @@ import java.util.List;
 
 public class Markdown {
 
+    private MarkdownType type;
+
+    private String name;
+
     private String author;
 
     private String time;
@@ -19,6 +23,11 @@ public class Markdown {
 
     private String title;
 
+    public Markdown(String name, MarkdownType markdownType) {
+        this.name = name;
+        this.type = markdownType;
+    }
+
     public void putMapParam(MapParam mapParam) {
         this.setAuthor(mapParam.author);
         this.setTime(mapParam.time);
@@ -26,6 +35,22 @@ public class Markdown {
         if(mapParam.see!=null) {
             this.setLinks(Arrays.asList(mapParam.see.split(",")));
         }
+    }
+
+    public MarkdownType getType() {
+        return type;
+    }
+
+    public void setType(MarkdownType type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setAuthor(String author) {
@@ -90,7 +115,9 @@ public class Markdown {
     @Override
     public String toString() {
         return "Markdown{" +
-                "author='" + author + '\'' +
+                "type=" + type +
+                ", name='" + name + '\'' +
+                ", author='" + author + '\'' +
                 ", time='" + time + '\'' +
                 ", order=" + order +
                 ", links=" + links +

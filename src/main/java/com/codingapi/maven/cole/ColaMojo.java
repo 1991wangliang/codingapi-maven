@@ -13,8 +13,6 @@ import org.reflections.Reflections;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 @Mojo(name = "cola",requiresDependencyResolution = ResolutionScope.COMPILE)
@@ -43,32 +41,12 @@ public class ColaMojo extends AbstractMojo {
         Reflections reflections = new Reflections(scannerPackage,URLClassLoader.newInstance(urls));
         Set<Class<?>> classSet =  reflections.getTypesAnnotatedWith(Executor.class);
         getLog().info("classSet:"+classSet.size());
-        List<String> javaList = new ArrayList<>();
         for (Class<?> clazz:classSet){
             String path = String.format("%s\\%s.java",sourceDir,clazz.getName().replaceAll("\\.","\\\\"));
             getLog().info("path:"+path);
-            javaList.add(path);
+            JavaDocHelper.init(outputDirectory.getAbsolutePath(),path);
+            JavaDocHelper.show(clazz);
         }
-        JavaDocHelper.init(outputDirectory.getAbsolutePath(),javaList);
-        JavaDocHelper.show();
     }
 
-    @SneakyThrows
-    public static void main(String[] args) {
-        String scannerPackage = "com.codingapi.cola.colademo.executor";
-        File outputDirectory = new File("E:\\developer\\idea\\github\\COLA\\cola-demo\\target\\classes");
-        File sourceDir = new File("E:\\developer\\idea\\github\\COLA\\cola-demo\\src\\main\\java");
-        URL[] urls= new URL[]{outputDirectory.toURL()};
-        Reflections reflections = new Reflections(scannerPackage,URLClassLoader.newInstance(urls));
-        Set<Class<?>> classSet =  reflections.getTypesAnnotatedWith(Executor.class);
-        System.out.println("classSet:"+classSet.size());
-        List<String> javaList = new ArrayList<>();
-        for (Class<?> clazz:classSet){
-            String path = String.format("%s\\%s.java",sourceDir,clazz.getName().replaceAll("\\.","\\\\"));
-            System.out.println("path:"+path);
-            javaList.add(path);
-        }
-        JavaDocHelper.init(outputDirectory.getAbsolutePath(),javaList);
-        JavaDocHelper.show();
-    }
 }

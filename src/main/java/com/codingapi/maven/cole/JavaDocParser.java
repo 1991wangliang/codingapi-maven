@@ -11,9 +11,9 @@ public class JavaDocParser {
         this.lines = Arrays.asList(context.split("\n"));
     }
 
-    public Markdown parser() {
+    public Markdown parser(String name,MarkdownType markdownType) {
         try {
-            Markdown markdown = new Markdown();
+            Markdown markdown = new Markdown(name,markdownType);
             MapParamParser mapParamParser = new MapParamParser();
             StringBuilder stringBuilder = new StringBuilder();
             for(String line:lines){
