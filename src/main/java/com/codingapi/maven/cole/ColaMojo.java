@@ -45,7 +45,7 @@ public class ColaMojo extends AbstractMojo {
             String path = String.format("%s\\%s.java",sourceDir,clazz.getName().replaceAll("\\.","\\\\"));
             getLog().info("path:"+path);
             JavaDocHelper.init(outputDirectory.getAbsolutePath(),path);
-            JavaDocHelper.show(clazz);
+            JavaDocHelper.show(clazz,outputMarkdown);
         }
     }
 

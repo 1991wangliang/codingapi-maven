@@ -31,13 +31,27 @@ public class JavaDocHelper {
     }
 
 
-    public static void show(Class<?> clazz){
+    public static void show(Class<?> clazz,String savePath){
         ClassDoc[] classes = rootDoc.classes();
+
+        List<Link> links = new ArrayList<>();
+        List<Markdown> markdowns = new ArrayList<>();
         for(ClassDoc classDoc : classes){
             String commentText = classDoc.commentText();
             JavaDocParser javaDocParser = new JavaDocParser(commentText);
             Markdown markdown =  javaDocParser.parser(clazz.getSimpleName(),MarkdownType.parser(clazz));
-            markdown.print();
+            Link link = new Link();
+            link.setTitle(markdown.getTitle());
+            link.setName(markdown.getName());
+            link.setUrl(markdown.getUrl());
+            links.add(link);
+            markdowns.add(markdown);
+        }
+
+        for(Markdown markdown:markdowns) {
+            MarkdownWriter markdownWriter = new MarkdownWriter(markdown,links);
+            markdownWriter.parser();
+            markdownWriter.save(savePath);
         }
     }
 

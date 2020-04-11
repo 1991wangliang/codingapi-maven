@@ -6,8 +6,6 @@ public class MapParam {
 
     public String time;
 
-    public String order = "0";
-
     public String see;
 
 }

@@ -15,6 +15,7 @@ public class ColaMojoTest {
     @SneakyThrows
     public static void main(String[] args) {
         String scannerPackage = "com.codingapi.cola.colademo.executor";
+        String outputMarkdown = "D://test/";
         File outputDirectory = new File("E:\\developer\\idea\\github\\COLA\\cola-demo\\target\\classes");
         File sourceDir = new File("E:\\developer\\idea\\github\\COLA\\cola-demo\\src\\main\\java");
         URL[] urls= new URL[]{outputDirectory.toURL()};
@@ -25,7 +26,7 @@ public class ColaMojoTest {
             String path = String.format("%s\\%s.java",sourceDir,clazz.getName().replaceAll("\\.","\\\\"));
             System.out.println("path:"+path);
             JavaDocHelper.init(outputDirectory.getAbsolutePath(),path);
-            JavaDocHelper.show(clazz);
+            JavaDocHelper.show(clazz,outputMarkdown);
         }
     }
 }

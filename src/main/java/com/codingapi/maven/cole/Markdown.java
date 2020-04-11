@@ -13,8 +13,6 @@ public class Markdown {
 
     private String time;
 
-    private int order;
-
     private List<String> links;
 
     private String content;
@@ -31,7 +29,6 @@ public class Markdown {
     public void putMapParam(MapParam mapParam) {
         this.setAuthor(mapParam.author);
         this.setTime(mapParam.time);
-        this.setOrder(Integer.parseInt(mapParam.order));
         if(mapParam.see!=null) {
             this.setLinks(Arrays.asList(mapParam.see.split(",")));
         }
@@ -59,10 +56,6 @@ public class Markdown {
 
     public void setTime(String time) {
         this.time = time;
-    }
-
-    public void setOrder(int order) {
-        this.order = order;
     }
 
     public void setLinks(List<String> links) {
@@ -101,9 +94,6 @@ public class Markdown {
         return time;
     }
 
-    public int getOrder() {
-        return order;
-    }
     public List<String> getLinks() {
         return links;
     }
@@ -119,11 +109,14 @@ public class Markdown {
                 ", name='" + name + '\'' +
                 ", author='" + author + '\'' +
                 ", time='" + time + '\'' +
-                ", order=" + order +
                 ", links=" + links +
                 ", content='" + content + '\'' +
                 ", subtitle='" + subtitle + '\'' +
                 ", title='" + title + '\'' +
                 '}';
+    }
+
+    public String getUrl() {
+        return "../"+type+"/"+name+".md";
     }
 }
