@@ -1,5 +1,6 @@
 package com.codingapi.maven.cole;
 
+import com.alibaba.cola.event.EventHandler;
 import com.alibaba.cola.executor.Executor;
 import lombok.SneakyThrows;
 import org.apache.maven.plugin.AbstractMojo;
@@ -11,6 +12,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.reflections.Reflections;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -44,7 +46,13 @@ public class ColaMojo extends AbstractMojo {
         getLog().info("outputMarkdown:"+outputMarkdown);
         URL[] urls= new URL[]{outputDirectory.toURL()};
         Reflections reflections = new Reflections(scannerPackage,URLClassLoader.newInstance(urls));
-        Set<Class<?>> classSet =  reflections.getTypesAnnotatedWith(Executor.class);
+        findClazz(reflections,Executor.class);
+        findClazz(reflections, EventHandler.class);
+        save();
+    }
+
+    private void findClazz(Reflections reflections, Class<?extends Annotation> clazzAnnotation){
+        Set<Class<?>> classSet =  reflections.getTypesAnnotatedWith(clazzAnnotation);
         getLog().info("classSet:"+classSet.size());
 
         for (Class<?> clazz:classSet){
@@ -53,10 +61,9 @@ public class ColaMojo extends AbstractMojo {
             JavaDocHelper.init(outputDirectory.getAbsolutePath(),path);
             JavaDocHelper.show(clazz,markdowns,links);
         }
-        save();
     }
 
-    public void save(){
+    private void save(){
         for(Markdown markdown:markdowns) {
             MarkdownWriter markdownWriter = new MarkdownWriter(markdown,links);
             markdownWriter.write();

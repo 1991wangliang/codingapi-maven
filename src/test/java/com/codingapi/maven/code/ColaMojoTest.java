@@ -1,5 +1,6 @@
 package com.codingapi.maven.code;
 
+import com.alibaba.cola.event.EventHandler;
 import com.alibaba.cola.executor.Executor;
 import com.codingapi.maven.cole.JavaDocHelper;
 import com.codingapi.maven.cole.Link;
@@ -9,6 +10,7 @@ import lombok.SneakyThrows;
 import org.reflections.Reflections;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -21,15 +23,21 @@ public class ColaMojoTest {
     private List<Link> links = new ArrayList<>();
 
     String outputMarkdown = "D://test/";
+    String scannerPackage = "com.codingapi.cola.colademo.executor";
+    File outputDirectory = new File("E:\\developer\\idea\\github\\COLA\\cola-demo\\target\\classes");
+    File sourceDir = new File("E:\\developer\\idea\\github\\COLA\\cola-demo\\src\\main\\java");
 
     @SneakyThrows
     public void execute(){
-        String scannerPackage = "com.codingapi.cola.colademo.executor";
-        File outputDirectory = new File("E:\\developer\\idea\\github\\COLA\\cola-demo\\target\\classes");
-        File sourceDir = new File("E:\\developer\\idea\\github\\COLA\\cola-demo\\src\\main\\java");
         URL[] urls= new URL[]{outputDirectory.toURL()};
         Reflections reflections = new Reflections(scannerPackage, URLClassLoader.newInstance(urls));
-        Set<Class<?>> classSet =  reflections.getTypesAnnotatedWith(Executor.class);
+        findClazz(reflections,Executor.class);
+        findClazz(reflections, EventHandler.class);
+        save();
+    }
+
+    private void findClazz(Reflections reflections, Class<?extends Annotation> clazzAnnotation){
+        Set<Class<?>> classSet =  reflections.getTypesAnnotatedWith(clazzAnnotation);
         System.out.println("classSet:"+classSet.size());
 
         for (Class<?> clazz:classSet){
@@ -40,7 +48,7 @@ public class ColaMojoTest {
         }
     }
 
-    public void save(){
+    private void save(){
         for(Markdown markdown:markdowns) {
             MarkdownWriter markdownWriter = new MarkdownWriter(markdown,links);
             markdownWriter.write();
@@ -52,6 +60,5 @@ public class ColaMojoTest {
     public static void main(String[] args) {
        ColaMojoTest colaMojoTest =  new ColaMojoTest();
        colaMojoTest.execute();
-       colaMojoTest.save();
     }
 }
