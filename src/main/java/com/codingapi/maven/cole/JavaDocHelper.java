@@ -1,7 +1,6 @@
 package com.codingapi.maven.cole;
 
 import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.RootDoc;
 
 import java.util.ArrayList;
@@ -35,17 +34,10 @@ public class JavaDocHelper {
     public static void show(){
         ClassDoc[] classes = rootDoc.classes();
         for(ClassDoc classDoc : classes){
-            System.out.println(classDoc.name()+
-                    "类的注释:\n"+classDoc.commentText());
-            MethodDoc[] methodDocs = classDoc.methods();
-            for(MethodDoc methodDoc : methodDocs){
-                // 打印出方法上的注释
-                System.out.println("类"
-                        +classDoc.name()+","
-                        +methodDoc.name()+
-                        "方法注释:\n"
-                        +methodDoc.commentText());
-            }
+            String commentText = classDoc.commentText();
+            JavaDocParser javaDocParser = new JavaDocParser(commentText);
+            Markdown markdown =  javaDocParser.parser();
+            markdown.print();
         }
     }
 

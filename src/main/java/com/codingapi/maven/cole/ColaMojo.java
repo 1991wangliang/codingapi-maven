@@ -23,6 +23,9 @@ public class ColaMojo extends AbstractMojo {
     @Parameter
     private String scannerPackage;
 
+    @Parameter
+    private String outputMarkdown;
+
     @Parameter(defaultValue = "${basedir}")
     private File baseDir;
 
@@ -35,6 +38,7 @@ public class ColaMojo extends AbstractMojo {
     @SneakyThrows
     public void execute() throws MojoExecutionException, MojoFailureException {
         getLog().info("scannerPackage:"+scannerPackage);
+        getLog().info("outputMarkdown:"+outputMarkdown);
         URL[] urls= new URL[]{outputDirectory.toURL()};
         Reflections reflections = new Reflections(scannerPackage,URLClassLoader.newInstance(urls));
         Set<Class<?>> classSet =  reflections.getTypesAnnotatedWith(Executor.class);
