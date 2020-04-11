@@ -52,4 +52,23 @@ public class ColaMojo extends AbstractMojo {
         JavaDocHelper.init(outputDirectory.getAbsolutePath(),javaList);
         JavaDocHelper.show();
     }
+
+    @SneakyThrows
+    public static void main(String[] args) {
+        String scannerPackage = "com.codingapi.cola.colademo.executor";
+        File outputDirectory = new File("E:\\developer\\idea\\github\\COLA\\cola-demo\\target\\classes");
+        File sourceDir = new File("E:\\developer\\idea\\github\\COLA\\cola-demo\\src\\main\\java");
+        URL[] urls= new URL[]{outputDirectory.toURL()};
+        Reflections reflections = new Reflections(scannerPackage,URLClassLoader.newInstance(urls));
+        Set<Class<?>> classSet =  reflections.getTypesAnnotatedWith(Executor.class);
+        System.out.println("classSet:"+classSet.size());
+        List<String> javaList = new ArrayList<>();
+        for (Class<?> clazz:classSet){
+            String path = String.format("%s\\%s.java",sourceDir,clazz.getName().replaceAll("\\.","\\\\"));
+            System.out.println("path:"+path);
+            javaList.add(path);
+        }
+        JavaDocHelper.init(outputDirectory.getAbsolutePath(),javaList);
+        JavaDocHelper.show();
+    }
 }

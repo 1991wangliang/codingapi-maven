@@ -23,7 +23,9 @@ public class Markdown {
         this.setAuthor(mapParam.author);
         this.setTime(mapParam.time);
         this.setOrder(Integer.parseInt(mapParam.order));
-        this.setLinks(Arrays.asList(mapParam.see.split(",")));
+        if(mapParam.see!=null) {
+            this.setLinks(Arrays.asList(mapParam.see.split(",")));
+        }
     }
 
     public void setAuthor(String author) {
@@ -82,6 +84,19 @@ public class Markdown {
     }
 
     public void print(){
-        System.out.println(content);
+        System.out.println(toString());
+    }
+
+    @Override
+    public String toString() {
+        return "Markdown{" +
+                "author='" + author + '\'' +
+                ", time='" + time + '\'' +
+                ", order=" + order +
+                ", links=" + links +
+                ", content='" + content + '\'' +
+                ", subtitle='" + subtitle + '\'' +
+                ", title='" + title + '\'' +
+                '}';
     }
 }

@@ -12,30 +12,35 @@ public class JavaDocParser {
     }
 
     public Markdown parser() {
-        MapParam mapParam = new MapParam();
-        Markdown markdown = new Markdown();
-        StringBuilder stringBuilder = new StringBuilder();
-        for(String line:lines){
-           LineParser lineParser =  new LineParser(line);
-           MapParamParser mapParamParser = new MapParamParser(mapParam);
-           if(lineParser.isParam()){
-               mapParamParser.parser(line);
-               continue;
-           }
-           if(lineParser.isTitle()){
-               markdown.setTitle(line);
-               continue;
-           }
-           if(lineParser.isSubTitle()){
-               markdown.setSubtitle(line);
-               continue;
-           }
-           stringBuilder.append(line);
-           stringBuilder.append("    \n");
+        try {
+            Markdown markdown = new Markdown();
+            MapParamParser mapParamParser = new MapParamParser();
+            StringBuilder stringBuilder = new StringBuilder();
+            for(String line:lines){
+                line = line.trim();
+                LineParser lineParser =  new LineParser(line);
+                if(lineParser.isParam()){
+                    mapParamParser.parser(line);
+                    continue;
+                }
+                if(lineParser.isTitle()){
+                    markdown.setTitle(line);
+                    continue;
+                }
+                if(lineParser.isSubTitle()){
+                    markdown.setSubtitle(line);
+                    continue;
+                }
+                stringBuilder.append(line);
+                stringBuilder.append("    \n");
+            }
+            markdown.setContent(stringBuilder.toString());
+            markdown.putMapParam(mapParamParser.getMapParam());
+            return markdown;
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new IllegalArgumentException(e.getMessage());
         }
-        markdown.setContent(stringBuilder.toString());
-        markdown.putMapParam(mapParam);
-        return markdown;
     }
 
     public class LineParser {
