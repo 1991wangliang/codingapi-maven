@@ -27,6 +27,7 @@ public class MarkdownWriter {
         br();
         link();
         br();
+        br();
         append(markdown.getContent());
     }
 
@@ -36,7 +37,11 @@ public class MarkdownWriter {
             for (String link : markdown.getLinks()) {
                 Link leader = getLink(link);
                 if (leader != null) {
-                    append("[" + leader.getTitle() + "](" + leader.getUrl() + ")  ");
+                    if(leader.getTitle().equals(leader.getName())) {
+                        append(String.format("[%s](%s)", leader.getName(), leader.getUrl()));
+                    }else{
+                        append(String.format("[%s|%s](%s)",leader.getName(),leader.getTitle(), leader.getUrl()));
+                    }
                 }
             }
         }
