@@ -51,7 +51,7 @@ import com.alibaba.cola.executor.Executor;
  * # 添加demo update
  * ##  添加业务的执行器
  * {@see:DemoAddCmdExe,DemoAddCmdExe,DemoAddCmdExe,DemoAddCmdExe,DemoAddCmdExe}
- * {@author:lorne,@time:2019-04-12}
+ * {@author:lorne @time:2019-04-12}
  * 这是一大段文字DemoAddCmdExe好的代码规范是一个程序员的基本修炼，好的代码注释更能体现一个程序员的思维逻辑，
  * 虽然代码是用来给机器运行的，我们只要能写出能让编译器运行的代码就行了，但是如果没有好的编码规范，到项目后期，
  * 加入开发的人员逐渐增多时，每个人的编码风格都不一样，这就会让项目维护者很难维护，所以开始就要制定一些好的规范
