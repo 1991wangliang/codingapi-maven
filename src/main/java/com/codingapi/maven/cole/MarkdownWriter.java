@@ -4,7 +4,6 @@ import org.aspectj.util.FileUtil;
 
 import java.io.File;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MarkdownWriter {
 
@@ -22,6 +21,7 @@ public class MarkdownWriter {
         append(markdown.getTitle());
         br();
         append(markdown.getSubtitle());
+        br();
         br();
         table();
         br();

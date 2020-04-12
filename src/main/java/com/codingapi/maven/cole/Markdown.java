@@ -74,6 +74,13 @@ public class Markdown {
         this.title = title;
     }
 
+    public String getShowTitle(){
+        if(title.startsWith("#")){
+            return title.replaceAll("#","").trim();
+        }
+        return title;
+    }
+
 
     public String getContent() {
         return content;
