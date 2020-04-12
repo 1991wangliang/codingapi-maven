@@ -30,9 +30,6 @@ public class ColaMojo extends AbstractMojo {
     @Parameter
     private String outputMarkdown;
 
-    @Parameter(defaultValue = "${basedir}")
-    private File baseDir;
-
     @Parameter(defaultValue = "${project.build.outputDirectory}",required = true,readonly = true)
     private File outputDirectory;
 
@@ -48,11 +45,10 @@ public class ColaMojo extends AbstractMojo {
 
     @SneakyThrows
     public void execute() throws MojoExecutionException, MojoFailureException {
-        getLog().info("outputDirectory:"+outputDirectory);
         getLog().info("sourceDir:"+sourceDir);
         getLog().info("scannerPackage:"+scannerPackage);
+        getLog().info("outputDirectory:"+outputDirectory);
         getLog().info("outputMarkdown:"+outputMarkdown);
-        getLog().info("project:"+project);
 
         List<URL> urlList = new ArrayList<>();
         urlList.add(outputDirectory.toURL());
