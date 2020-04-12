@@ -71,7 +71,7 @@ public class MarkdownWriter {
     public void save(String path){
         File file = new File(path+"/"+markdown.getType()+"/"+markdown.getName()+".md");
         FileUtil.writeAsString(file,content.toString());
-        System.out.println("see markdown:"+file);
+        System.out.println("see markdown:"+file.getAbsolutePath());
     }
 
 
