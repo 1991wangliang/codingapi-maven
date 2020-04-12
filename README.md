@@ -2,6 +2,17 @@
 
 codingapi maven 插件,由于尚未上传到中心库,使用时限制性编译打包.`mvn clean install`
 
+若找不到jdk配置的话，可直接设置systemPath为jdk 1.8 tools地址
+```
+        <dependency>
+            <groupId>com.sun</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.8.0</version>
+            <scope>system</scope>
+            <systemPath>/Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home/lib/tools.jar</systemPath>
+        </dependency>
+```
+
 ## cola
 cola 插件是编写Executor业务文档的插件,使用方式如下:
 
