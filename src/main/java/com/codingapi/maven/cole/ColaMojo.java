@@ -74,6 +74,7 @@ public class ColaMojo extends AbstractMojo {
                 return o2.getName().compareTo(o1.getName());
             }
         });
+        Collections.reverse(markdowns);
     }
 
     private void findClazz(Reflections reflections, Class<?extends Annotation> clazzAnnotation){
