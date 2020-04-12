@@ -9,10 +9,10 @@ public enum MarkdownType {
 
 
     public static MarkdownType parser(Class<?> clazz){
-        if(clazz.getAnnotation(Executor.class)!=null){
+        if(clazz.equals(Executor.class)){
             return EXECUTOR;
         }
-        if(clazz.getAnnotation(EventHandler.class)!=null){
+        if(clazz.equals(EventHandler.class)){
             return EVENT;
         }
         return EXECUTOR;

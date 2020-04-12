@@ -3,6 +3,7 @@ package com.codingapi.maven.cole;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.RootDoc;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,12 +32,12 @@ public class JavaDocHelper {
     }
 
 
-    public static void show(Class<?> clazz,List<Markdown> markdowns,List<Link> links){
+    public static void show(Class<?> clazz, List<Markdown> markdowns, List<Link> links, Class<?extends Annotation> annotationClazz){
         ClassDoc[] classes = rootDoc.classes();
         for(ClassDoc classDoc : classes){
             String commentText = classDoc.commentText();
             JavaDocParser javaDocParser = new JavaDocParser(commentText);
-            Markdown markdown =  javaDocParser.parser(clazz.getSimpleName(),MarkdownType.parser(clazz));
+            Markdown markdown =  javaDocParser.parser(clazz.getSimpleName(),MarkdownType.parser(annotationClazz));
             Link link = new Link();
             link.setTitle(markdown.getTitle());
             link.setName(markdown.getName());
