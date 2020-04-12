@@ -13,14 +13,11 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.reflections.Reflections;
 
-import javax.swing.text.StringContent;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Mojo(name = "cola",requiresDependencyResolution = ResolutionScope.COMPILE)
 public class ColaMojo extends AbstractMojo {
@@ -63,10 +60,20 @@ public class ColaMojo extends AbstractMojo {
             Reflections reflections = new Reflections(scannerPackage, classLoader);
             findClazz(reflections, Executor.class);
             findClazz(reflections, EventHandler.class);
+            resort();
             save();
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    private void resort(){
+        Collections.sort(markdowns, new Comparator<Markdown>() {
+            @Override
+            public int compare(Markdown o1, Markdown o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
     }
 
     private void findClazz(Reflections reflections, Class<?extends Annotation> clazzAnnotation){
@@ -74,7 +81,7 @@ public class ColaMojo extends AbstractMojo {
         getLog().info(clazzAnnotation.getName()+"->classSet:"+classSet.size());
 
         for (Class<?> clazz:classSet){
-            String path = String.format("%s\\%s.java",sourceDir,clazz.getName().replaceAll("\\.","\\\\"));
+            String path = String.format("%s/%s.java",sourceDir,clazz.getName().replaceAll("\\.","/"));
             getLog().info("path:"+path);
             JavaDocHelper.init(outputDirectory.getAbsolutePath(),path);
             JavaDocHelper.show(clazz,markdowns,links,clazzAnnotation);
