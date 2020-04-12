@@ -34,7 +34,11 @@ public class Index {
             br();
             for(Markdown markdown:markdowns){
                 if(markdown.getType().equals(type)){
-                    content.append(String.format("* [%s|%s](%s)",markdown.getShowTitle(),markdown.getName(),markdown.getIndexUrl()));
+                    if(markdown.getShowTitle().equals(markdown.getName())) {
+                        content.append(String.format("* [%s](%s)", markdown.getName(), markdown.getIndexUrl()));
+                    }else{
+                        content.append(String.format("* [%s|%s](%s)", markdown.getShowTitle(), markdown.getName(), markdown.getIndexUrl()));
+                    }
                     br();
                 }
             }
