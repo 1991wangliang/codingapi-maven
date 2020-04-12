@@ -6,23 +6,30 @@ codingapi maven 插件,由于尚未上传到中心库,使用时限制性编译�
 cola 插件是编写Executor业务文档的插件,使用方式如下:
 
 ```
-  <build>
+     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-
-            <plugin>
+                <!-- https://github.com/1991wangliang/codingapi-maven -->
                 <groupId>com.codingapi.maven</groupId>
                 <artifactId>codingapi-maven-plugin</artifactId>
                 <version>1.0.0</version>
+                <!-- 设定在compile 编译时执行 -->
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <!-- 执行的mojo名称 cola -->
+                        <goals>
+                            <goal>cola</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
                     <!--        扫码的包路径       -->
-                    <scannerPackage>com.codingapi.cola.colademo</scannerPackage>
-                    <!--        markdown导出路径       -->
-                    <outputMarkdown>D:\test</outputMarkdown>
+                    <scannerPackage>com.codingapi.tm.hqhbserver</scannerPackage>
+                    <!-- markdown导出路径(相对路径) -->
+                    <outputMarkdown>markdown</outputMarkdown>
                 </configuration>
+                 <!--       插件执行时依赖的pom      -->
                 <dependencies>
                     <dependency>
                         <groupId>com.alibaba.cola</groupId>
@@ -39,8 +46,13 @@ cola 插件是编写Executor业务文档的插件,使用方式如下:
 mvn clean package codingapi:cola
 ```
 
-注释编写规范
-
+注释编写规范  
+支持的参数写法`{@see:value}`     
+一行写多个`{@see:value@autor:lorne}`   
+支持的字段有如下三种:  
+@see 关联   
+@autor 作者   
+@time 时间  
 ```
 package com.codingapi.cola.colademo.executor;
 
