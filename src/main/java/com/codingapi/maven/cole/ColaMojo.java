@@ -13,6 +13,7 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.reflections.Reflections;
 
+import javax.swing.text.StringContent;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.net.URL;
@@ -86,6 +87,8 @@ public class ColaMojo extends AbstractMojo {
             markdownWriter.write();
             markdownWriter.save(outputMarkdown);
         }
+        Index index = new Index(markdowns);
+        index.write(outputMarkdown);
     }
 
 }

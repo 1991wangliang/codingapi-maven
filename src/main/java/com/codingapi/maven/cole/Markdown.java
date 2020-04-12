@@ -24,6 +24,7 @@ public class Markdown {
     public Markdown(String name, MarkdownType markdownType) {
         this.name = name;
         this.type = markdownType;
+        this.title = name;
     }
 
     public void putMapParam(MapParam mapParam) {
@@ -118,5 +119,10 @@ public class Markdown {
 
     public String getUrl() {
         return "../"+type+"/"+name+".md";
+    }
+
+
+    public String getIndexUrl() {
+        return type+"/"+name+".md";
     }
 }
