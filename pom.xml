@@ -9,6 +9,7 @@
     <modules>
         <module>maven-cola</module>
         <module>maven-uml</module>
+        <module>maven-uml-annotation</module>
     </modules>
     <packaging>pom</packaging>
 

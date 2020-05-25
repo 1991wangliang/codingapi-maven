@@ -1,9 +1,8 @@
-package com.codingapi.maven.uml;
+package com.codingapi.maven.uml.define;
 
 
 import com.codingapi.maven.uml.annotation.*;
-import com.codingapi.maven.uml.builder.UmlBuilder;
-import com.codingapi.maven.uml.define.*;
+import com.codingapi.maven.uml.builder.UmlPlantUMLCreater;
 import io.github.classgraph.AnnotationInfo;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
@@ -20,22 +19,21 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @AggregationRootModel(title = "生成PlantUML工具")
-public class GeneratePlantUMLCli implements Cli {
+public class PlantUMLParser {
 
     private final String generatePath;
     private final String basePackage;
     private final ClassLoader classLoader;
 
 
-    public GeneratePlantUMLCli(String generatePath, String basePackage,ClassLoader classLoader) {
+    public PlantUMLParser(String generatePath, String basePackage, ClassLoader classLoader) {
         this.generatePath = generatePath;
         this.basePackage = basePackage;
         this.classLoader = classLoader;
     }
 
-    @Override
     public void run() throws Exception {
-        try (UmlBuilder umlBuilder = new UmlBuilder(Paths.get(generatePath))) {
+        try (UmlPlantUMLCreater umlBuilder = new UmlPlantUMLCreater(Paths.get(generatePath))) {
             new ClassGraph()
                     .addClassLoader(classLoader)
                     .verbose()
@@ -80,7 +78,7 @@ public class GeneratePlantUMLCli implements Cli {
         classInfo.getDeclaredFieldInfo().forEach(fieldInfo -> {
             FieldDefinition fieldDefinition = new FieldDefinition();
             fieldDefinition.setName(fieldInfo.getName());
-            fieldDefinition.setType(fieldInfo.getTypeDescriptor().toStringWithSimpleNames());
+            fieldDefinition.setType(fieldInfo.getTypeSignatureOrTypeDescriptor().toStringWithSimpleNames());
 
             AnnotationInfo remark = fieldInfo.getAnnotationInfo(Title.class.getName());
             if (Objects.nonNull(remark)) {
@@ -104,7 +102,7 @@ public class GeneratePlantUMLCli implements Cli {
                     methodDefinition.setReturnType(
                             methodInfo.getTypeSignatureOrTypeDescriptor().getResultType().toStringWithSimpleNames());
 
-                    methodDefinition.setParameterTypes(
+                    methodDefinition.setParameterType(
                             Stream.of(methodInfo.getParameterInfo())
                                     .map(pi -> pi.getTypeSignatureOrTypeDescriptor().toStringWithSimpleNames())
                                     .collect(Collectors.joining(", ")));

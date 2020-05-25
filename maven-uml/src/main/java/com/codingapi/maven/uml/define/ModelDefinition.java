@@ -18,12 +18,14 @@ public class ModelDefinition {
     @Title("模型注释")
     private ModelAnnotation annotation;
 
-    private @GraphRelation(".left.>") List<FieldDefinition> fieldDefinitions;
+    @GraphRelation(".left.>")
+    private List<FieldDefinition> fieldDefinitions;
 
-    private @GraphRelation(".down.>") List<MethodDefinition> methodDefinitions;
+    @GraphRelation(".down.>")
+    private List<MethodDefinition> methodDefinitions;
 
-    private @GraphRelation(".left.>") List<RelationDefinition> relationDefinitions;
-
+    @GraphRelation(".left.>")
+    private List<RelationDefinition> relationDefinitions;
 
     @Title("模型转字符串")
     public String string() {

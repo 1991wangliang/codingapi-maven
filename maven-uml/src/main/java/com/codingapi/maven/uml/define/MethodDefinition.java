@@ -8,6 +8,6 @@ import lombok.Data;
 public class MethodDefinition {
     private String name;
     private String returnType;
-    private String parameterTypes;
+    private String parameterType;
     private String remark = "";
 }
