@@ -1,6 +1,6 @@
 package com.codingapi.maven.uml;
 
-import com.codingapi.maven.uml.define.PlantUMLParser;
+import com.codingapi.maven.uml.define.PlantUmlBuilder;
 import lombok.SneakyThrows;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -52,7 +52,7 @@ public class UmlMojo extends AbstractMojo {
         URL[] urls = urlList.toArray(new URL[]{});
         try {
             ClassLoader classLoader = new URLClassLoader(urls);
-            new PlantUMLParser(
+            new PlantUmlBuilder(
                     outputPath,
                     scannerPackage,
                     classLoader

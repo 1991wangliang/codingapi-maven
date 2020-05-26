@@ -6,9 +6,11 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Documented
 public @interface Model {
+
     String flag();
 
     String color();
 
     String title();
+
 }

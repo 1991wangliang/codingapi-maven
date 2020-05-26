@@ -2,29 +2,34 @@ package com.codingapi.maven.uml.builder;
 
 
 import com.codingapi.maven.uml.define.ModelDefinition;
+import lombok.SneakyThrows;
 
 import java.io.Closeable;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public abstract class IPlantUMLCreater implements Closeable {
+public abstract class IPlantUMLWriter implements Closeable {
 
-    abstract void appendModel(ModelDefinition modelDefinition) throws IOException;
-
-
+    abstract void content(ModelDefinition modelDefinition) throws IOException;
     private final FileWriter fileWriter;
 
-    public IPlantUMLCreater(Path filePath) throws IOException {
+    public IPlantUMLWriter(Path filePath) throws IOException {
         fileWriter = new FileWriter(filePath.toFile());
-        this.header();
     }
 
-    protected void write(String content)throws IOException{
+    @SneakyThrows
+    public void write(ModelDefinition modelDefinition){
+        this.header();
+        content(modelDefinition);
+        this.footer();
+    }
+
+    protected void fileWriter(String content)throws IOException{
         fileWriter.write(content);
     }
 
-    private void header()throws IOException{
+    private void header() throws IOException{
         try {
             fileWriter.write("@startuml\n");
             fileWriter.write("set namespaceSeparator ::\n\n");
@@ -38,14 +43,22 @@ public abstract class IPlantUMLCreater implements Closeable {
         }
     }
 
+    private void footer() throws IOException{
+        try {
+            fileWriter.write("\n@enduml\n");
+        } catch (IOException e) {
+            fileWriter.close();
+            throw e;
+        }
+    }
+
     @Override
-    public void close() throws IOException {
+    public void close(){
         if (fileWriter != null) {
             try {
-                fileWriter.write("\n@enduml\n");
                 fileWriter.close();
             } catch (IOException e) {
-                fileWriter.close();
+               throw new RuntimeException(e);
             }
         }
     }

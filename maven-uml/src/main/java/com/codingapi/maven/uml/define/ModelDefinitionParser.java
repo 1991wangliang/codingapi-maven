@@ -1,10 +1,7 @@
 package com.codingapi.maven.uml.define;
 
-
 import com.codingapi.maven.uml.annotation.*;
-import com.codingapi.maven.uml.builder.UmlPlantUMLCreater;
 import io.github.classgraph.AnnotationInfo;
-import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.PackageInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -13,88 +10,69 @@ import java.lang.reflect.AnnotatedParameterizedType;
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@AggregationRootModel(title = "生成PlantUML工具")
-public class PlantUMLParser {
+public class ModelDefinitionParser {
 
-    private final String generatePath;
-    private final String basePackage;
-    private final ClassLoader classLoader;
+    private ClassInfo classInfo;
+    private ModelDefinition modelDefinition;
+    private AnnotationInfo annotationInfo;
 
-
-    public PlantUMLParser(String generatePath, String basePackage, ClassLoader classLoader) {
-        this.generatePath = generatePath;
-        this.basePackage = basePackage;
-        this.classLoader = classLoader;
-    }
-
-    public void run() throws Exception {
-        try (UmlPlantUMLCreater umlBuilder = new UmlPlantUMLCreater(Paths.get(generatePath))) {
-            new ClassGraph()
-                    .addClassLoader(classLoader)
-                    .verbose()
-                    .enableAllInfo()
-                    .whitelistPackages(basePackage)
-                    .scan()
-                    .getAllClasses()
-                    .stream()
-                    .filter(classInfo -> classInfo.getAnnotationInfo(Model.class.getName()) != null)
-                    .filter(classInfo -> !classInfo.isAnnotation())
-                    .map(this::toModelDefinition).collect(Collectors.toList()).forEach(umlBuilder::appendModel);
-        }
-    }
-
-
-    private ModelDefinition toModelDefinition(ClassInfo classInfo) {
-
+    public ModelDefinitionParser(ClassInfo classInfo) {
+        this.classInfo = classInfo;
+        this.modelDefinition = new ModelDefinition();
         // Annotation Info
-        AnnotationInfo annotationInfo = classInfo.getAnnotationInfo(Model.class.getName());
+        annotationInfo = classInfo.getAnnotationInfo(Model.class.getName());
+    }
+
+    private ModelAnnotation modelAnnotation() {
         ModelAnnotation modelAnnotation = new ModelAnnotation();
-        modelAnnotation.setFlag((String) annotationInfo.getParameterValues().getValue("flag"));
-        modelAnnotation.setColor((String) annotationInfo.getParameterValues().getValue("color"));
-        modelAnnotation.setTitle((String) annotationInfo.getParameterValues().getValue("title"));
+        modelAnnotation.setFlag(getStringValue(UmlConstant.FLAG));
+        modelAnnotation.setColor(getStringValue(UmlConstant.COLOR));
+        modelAnnotation.setTitle(getStringValue(UmlConstant.TITLE));
         if (StringUtils.isEmpty(modelAnnotation.getTitle())) {
             AnnotationInfo tmp = classInfo.getAnnotationInfo()
                     .stream()
-                    .filter(ai -> !Objects.nonNull(ai.getParameterValues().getValue("title")))
+                    .filter(ai -> StringUtils.isNotEmpty(getStringValue(ai, UmlConstant.TITLE)))
                     .findAny()
                     .orElse(null);
             if (Objects.nonNull(tmp)) {
-                modelAnnotation.setTitle((String) tmp.getParameterValues().getValue("title"));
+                modelAnnotation.setTitle(getStringValue(tmp, UmlConstant.TITLE));
             } else {
                 modelAnnotation.setTitle("");
             }
         }
+        return modelAnnotation;
+    }
 
-        // Package
-        String packageName = chooseBoundContext(classInfo.getPackageInfo()).orElse(classInfo.getPackageName());
-
+    private List<FieldDefinition> fieldDefinitionList() {
         // Fields
         List<FieldDefinition> fieldDefinitions = new LinkedList<>();
-        classInfo.getDeclaredFieldInfo().forEach(fieldInfo -> {
+        classInfo.getDeclaredFieldInfo()
+                .filter(fieldInfo -> fieldInfo.getAnnotationInfo(Ignore.class.getName())==null)
+                .forEach(fieldInfo -> {
             FieldDefinition fieldDefinition = new FieldDefinition();
             fieldDefinition.setName(fieldInfo.getName());
             fieldDefinition.setType(fieldInfo.getTypeSignatureOrTypeDescriptor().toStringWithSimpleNames());
 
             AnnotationInfo remark = fieldInfo.getAnnotationInfo(Title.class.getName());
             if (Objects.nonNull(remark)) {
-                fieldDefinition.setRemark((String) remark.getParameterValues().getValue("value"));
+                fieldDefinition.setRemark(getStringValue(remark, UmlConstant.VALUE));
             }
             fieldDefinitions.add(fieldDefinition);
         });
+        return fieldDefinitions;
+    }
+
+    private List<MethodDefinition> methodDefinitionList() {
 
         // Methods
         List<MethodDefinition> methodDefinitions = new LinkedList<>();
 
         classInfo.getDeclaredMethodInfo().stream()
-                .filter(methodInfo -> !methodInfo.getName().contains("hashCode"))
-                .filter(methodInfo -> !methodInfo.getName().contains("toString"))
-                .filter(methodInfo -> !methodInfo.getName().equals("equals"))
-                .filter(methodInfo -> !methodInfo.getName().equals("canEqual"))
+                .filter(methodInfo -> methodInfo.getAnnotationInfo(Ignore.class.getName())==null)
                 .filter(methodInfo -> methodInfo.getModifiers() == Modifier.PUBLIC)
                 .forEach(methodInfo -> {
                     MethodDefinition methodDefinition = new MethodDefinition();
@@ -109,33 +87,34 @@ public class PlantUMLParser {
 
                     AnnotationInfo remark = methodInfo.getAnnotationInfo(Title.class.getName());
                     if (Objects.nonNull(remark)) {
-                        methodDefinition.setRemark((String) remark.getParameterValues().getValue("value"));
+                        methodDefinition.setRemark(getStringValue(remark, UmlConstant.VALUE));
                     }
                     methodDefinitions.add(methodDefinition);
                 });
+        return methodDefinitions;
+    }
 
+    private List<RelationDefinition> relationDefinitions(String packageName) {
         // Relations
-        Set<RelationDefinition> relationDefinitionSet = new HashSet<>(getFromFields(classInfo, packageName));
+        List<RelationDefinition> relationDefinitionSet = new ArrayList<>(getFromFields(classInfo, packageName));
         relationDefinitionSet.addAll(getFromMethods(classInfo));
         relationDefinitionSet.addAll(getFromConstructor(classInfo));
+        return relationDefinitionSet;
+    }
 
+    private String getStringValue(String key) {
+        return getStringValue(annotationInfo, key);
+    }
 
-        ModelDefinition modelDefinition = new ModelDefinition();
-        modelDefinition.setAnnotation(modelAnnotation);
-        modelDefinition.setPackageName(Optional.ofNullable(packageName).orElse(classInfo.getPackageName()));
-        modelDefinition.setClassName(classInfo.getSimpleName());
-
-        modelDefinition.setFieldDefinitions(fieldDefinitions);
-        modelDefinition.setMethodDefinitions(methodDefinitions);
-        modelDefinition.setRelationDefinitions(new LinkedList<>(relationDefinitionSet));
-        return modelDefinition;
+    private String getStringValue(AnnotationInfo annotationInfo, String key) {
+        return (String) annotationInfo.getParameterValues().getValue(key);
     }
 
     private Optional<String> chooseBoundContext(PackageInfo packageInfo) {
-        if (packageInfo.getAnnotationInfo(BoundContext.class.getName()) != null) {
-            String packageName =
-                    (String) packageInfo.getAnnotationInfo(BoundContext.class.getName()).getParameterValues().getValue("value");
+        AnnotationInfo annotationInfo = packageInfo.getAnnotationInfo(BoundContext.class.getName());
 
+        if (annotationInfo != null) {
+            String packageName = getStringValue(annotationInfo, UmlConstant.VALUE);
             return Optional.of(StringUtils.isNotEmpty(packageName) ? packageName : packageInfo.getName());
         }
         if (Objects.isNull(packageInfo.getParent())) {
@@ -158,7 +137,6 @@ public class PlantUMLParser {
         }
         return chooseBoundContext(parent);
     }
-
 
     private Set<RelationDefinition> getFromFields(ClassInfo classInfo, String packageName) {
         Set<RelationDefinition> relationDefinitionSet = new HashSet<>();
@@ -206,4 +184,15 @@ public class PlantUMLParser {
         return relationDefinitionSet;
     }
 
+    public ModelDefinition parser() {
+        // Package
+        String packageName = chooseBoundContext(classInfo.getPackageInfo()).orElse(classInfo.getPackageName());
+        modelDefinition.setPackageName(Optional.ofNullable(packageName).orElse(classInfo.getPackageName()));
+        modelDefinition.setClassName(classInfo.getSimpleName());
+        modelDefinition.setAnnotation(modelAnnotation());
+        modelDefinition.setFieldDefinitions(fieldDefinitionList());
+        modelDefinition.setMethodDefinitions(methodDefinitionList());
+        modelDefinition.setRelationDefinitions(relationDefinitions(packageName));
+        return modelDefinition;
+    }
 }
