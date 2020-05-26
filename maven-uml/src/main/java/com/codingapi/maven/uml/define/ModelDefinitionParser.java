@@ -6,10 +6,7 @@ import io.github.classgraph.ClassInfo;
 import io.github.classgraph.PackageInfo;
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.AnnotatedParameterizedType;
-import java.lang.reflect.AnnotatedType;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,20 +15,22 @@ public class ModelDefinitionParser {
 
     private ClassInfo classInfo;
     private ModelDefinition modelDefinition;
-    private AnnotationInfo annotationInfo;
+
 
     public ModelDefinitionParser(ClassInfo classInfo) {
         this.classInfo = classInfo;
         this.modelDefinition = new ModelDefinition();
-        // Annotation Info
-        annotationInfo = classInfo.getAnnotationInfo(Model.class.getName());
+
     }
 
     private ModelAnnotation modelAnnotation() {
+        // Annotation Info
+        AnnotationInfo annotationInfo = classInfo.getAnnotationInfo(Model.class.getName());
         ModelAnnotation modelAnnotation = new ModelAnnotation();
-        modelAnnotation.setFlag(getStringValue(UmlConstant.FLAG));
-        modelAnnotation.setColor(getStringValue(UmlConstant.COLOR));
-        modelAnnotation.setTitle(getStringValue(UmlConstant.TITLE));
+        modelAnnotation.setFlag(getStringValue(annotationInfo,UmlConstant.FLAG));
+        modelAnnotation.setColor(getStringValue(annotationInfo,UmlConstant.COLOR));
+        modelAnnotation.setTitle(getStringValue(annotationInfo,UmlConstant.TITLE));
+
         if (StringUtils.isEmpty(modelAnnotation.getTitle())) {
             AnnotationInfo tmp = classInfo.getAnnotationInfo()
                     .stream()
@@ -102,9 +101,7 @@ public class ModelDefinitionParser {
         return relationDefinitionSet;
     }
 
-    private String getStringValue(String key) {
-        return getStringValue(annotationInfo, key);
-    }
+
 
     private String getStringValue(AnnotationInfo annotationInfo, String key) {
         return (String) annotationInfo.getParameterValues().getValue(key);
@@ -138,34 +135,34 @@ public class ModelDefinitionParser {
         return chooseBoundContext(parent);
     }
 
+    private Class<?> typeClass(Field field) {
+        Type type = field.getGenericType();
+        if (type instanceof ParameterizedType ) {
+            ParameterizedType parameterizedType = (ParameterizedType) type;
+            return (Class<?>) parameterizedType.getActualTypeArguments()[0];
+        }
+        return field.getType();
+    }
+
+
+
     private Set<RelationDefinition> getFromFields(ClassInfo classInfo, String packageName) {
         Set<RelationDefinition> relationDefinitionSet = new HashSet<>();
-        classInfo.getDeclaredFieldInfo().forEach(fieldInfo -> {
+        classInfo.getDeclaredFieldInfo()
+                .filter(fieldInfo -> fieldInfo.getAnnotationInfo(GraphRelation.class.getName())==null)
+                .forEach(fieldInfo -> {
+
             Field field = fieldInfo.loadClassAndGetField();
             GraphRelation graphPosition = field.getAnnotatedType().getAnnotation(GraphRelation.class);
+            if(graphPosition!=null) {
 
-            if (Objects.nonNull(graphPosition)) {
+                Class<?> typeClass = typeClass(field);
                 String boundCtx =
-                        chooseBoundContext(field.getType().getPackage()).orElse(field.getType().getPackage().getName());
+                        chooseBoundContext(typeClass.getPackage()).orElse(typeClass.getPackage().getName());
                 relationDefinitionSet.add(RelationDefinition.of(
                         packageName + "::" + classInfo.getSimpleName(), graphPosition.value(),
-                        boundCtx + "::" + field.getType().getSimpleName()));
-                return;
-            }
-            if (AnnotatedParameterizedType.class.isAssignableFrom(field.getAnnotatedType().getClass())) {
-                AnnotatedType annotatedType =
-                        ((AnnotatedParameterizedType) field.getAnnotatedType()).getAnnotatedActualTypeArguments()[0];
-                GraphRelation graphPosition1 = annotatedType.getAnnotation(GraphRelation.class);
-                if (Objects.nonNull(graphPosition1)) {
-                    int idx = annotatedType.getType().getTypeName().lastIndexOf('.');
-                    String classSimpleName = annotatedType.getType().getTypeName().substring(idx + 1);
-                    String pkName = annotatedType.getType().getTypeName().substring(0, idx);
-                    String boundCtx =
-                            Optional.ofNullable(Optional.ofNullable(packageName).orElse(classInfo.getPackageName())).orElse(pkName);
-                    relationDefinitionSet.add(RelationDefinition.of(
-                            packageName + "::" + classInfo.getSimpleName(), graphPosition1.value(),
-                            boundCtx + "::" + classSimpleName));
-                }
+                        boundCtx + "::" + typeClass.getSimpleName()));
+
             }
         });
         return relationDefinitionSet;

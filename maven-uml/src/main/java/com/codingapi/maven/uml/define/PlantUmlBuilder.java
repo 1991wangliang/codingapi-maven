@@ -29,6 +29,7 @@ public class PlantUmlBuilder {
     @SneakyThrows
     public void run() {
         try (UmlPlantUMLWriter umlWriter = new UmlPlantUMLWriter(Paths.get(generatePath))) {
+            umlWriter.header();
             new ClassGraph()
                     .addClassLoader(classLoader)
                     .verbose()
@@ -42,6 +43,7 @@ public class PlantUmlBuilder {
                     .filter(classInfo -> !classInfo.isAnnotation())
                     .map(this::classInfoParser).collect(Collectors.toList())
                     .forEach(umlWriter::write);
+            umlWriter.footer();
         }
     }
 

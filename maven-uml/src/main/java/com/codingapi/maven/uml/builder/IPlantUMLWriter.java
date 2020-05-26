@@ -20,16 +20,15 @@ public abstract class IPlantUMLWriter implements Closeable {
 
     @SneakyThrows
     public void write(ModelDefinition modelDefinition){
-        this.header();
         content(modelDefinition);
-        this.footer();
     }
 
     protected void fileWriter(String content)throws IOException{
         fileWriter.write(content);
     }
 
-    private void header() throws IOException{
+    @SneakyThrows
+    public void header() {
         try {
             fileWriter.write("@startuml\n");
             fileWriter.write("set namespaceSeparator ::\n\n");
@@ -43,7 +42,8 @@ public abstract class IPlantUMLWriter implements Closeable {
         }
     }
 
-    private void footer() throws IOException{
+    @SneakyThrows
+    public void footer(){
         try {
             fileWriter.write("\n@enduml\n");
         } catch (IOException e) {
