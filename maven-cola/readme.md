@@ -22,7 +22,7 @@ cola 插件是编写Executor业务文档的插件,使用方式如下:
             <plugin>
                 <!-- https://github.com/1991wangliang/codingapi-maven -->
                 <groupId>com.codingapi.maven</groupId>
-                <artifactId>codingapi-maven-plugin</artifactId>
+                <artifactId>maven-cola</artifactId>
                 <version>1.0.0</version>
                 <!-- 设定在compile 编译时执行 -->
                 <executions>

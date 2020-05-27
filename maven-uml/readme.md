@@ -2,6 +2,7 @@
 
 ## uml
 uml 插件是编写领域模型plantuml的插件,使用方式如下:
+
 ```$xslt
   <build>
     <plugins>
@@ -39,3 +40,4 @@ uml 插件是编写领域模型plantuml的插件,使用方式如下:
   </build>
 
 ```
+
