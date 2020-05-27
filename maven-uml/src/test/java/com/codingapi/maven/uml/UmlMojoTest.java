@@ -24,7 +24,7 @@ class UmlMojoTest {
 //        [INFO] outputDirectory:/Users/Shared/Previously Relocated Items/Security/developer/idea/gitee/evaluate/evaluate-domain/target/classes
 //        [INFO] outputPath:evaluate.puml
 
-        File outputDirectory = new File("/Users/Shared/Previously Relocated Items/Security/developer/idea/gitee/evaluate/evaluate-domain/target/classes");
+        File outputDirectory = new File("E:\\developer\\idea\\gitee\\evaluate\\evaluate-domain\\target\\classes");
         String outputPath = "evaluate.puml";
         String scannerPackage = "com.codingapi.evaluate.domain";
         umlMojo.run(outputDirectory,outputPath,scannerPackage);
