@@ -1,13 +1,10 @@
 package com.codingapi.maven.uml.define;
 
 import com.codingapi.maven.uml.annotation.*;
-import io.github.classgraph.AnnotationClassRef;
-import io.github.classgraph.AnnotationInfo;
-import io.github.classgraph.ClassInfo;
-import io.github.classgraph.PackageInfo;
+import io.github.classgraph.*;
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -17,12 +14,12 @@ public class ModelDefinitionParser {
 
     private ClassInfo classInfo;
     private ModelDefinition modelDefinition;
+    private ScanResult scanResult;
 
-
-    public ModelDefinitionParser(ClassInfo classInfo) {
+    public ModelDefinitionParser(ScanResult scanResult, ClassInfo classInfo) {
+        this.scanResult = scanResult;
         this.classInfo = classInfo;
         this.modelDefinition = new ModelDefinition();
-
     }
 
     private ModelAnnotation modelAnnotation() {
@@ -118,30 +115,15 @@ public class ModelDefinitionParser {
         return chooseBoundContext(packageInfo.getParent());
     }
 
-    private Optional<String> chooseBoundContext(Package pk) {
-        if (pk.getAnnotation(BoundContext.class) != null) {
-            String packageName = pk.getAnnotation(BoundContext.class).value();
-            return Optional.of(StringUtils.isNotEmpty(packageName) ? packageName : pk.getName());
-        }
-
-        int idx = pk.getName().lastIndexOf('.');
-        System.out.println(pk.getName()+":"+pk.getName().substring(0, idx));
-        Package parent = Package.getPackage(pk.getName().substring(0, idx));
-        if (Objects.isNull(parent)) {
-            return Optional.empty();
-        }
-        return chooseBoundContext(parent);
-    }
-
 
 
     private List<RelationDefinition> relationDefinitions(String packageName) {
         List<RelationDefinition> relationDefinitionList = new ArrayList<>();
-
         Consumer<AnnotationInfo> consumer = annotationInfo -> {
             Class<?> typeClass = getClassValue(annotationInfo,UmlConstant.TYPE);
+            PackageInfo packageInfo =  scanResult.getPackageInfo(typeClass.getPackage().getName());
             String boundCtx =
-                    chooseBoundContext(typeClass.getPackage()).orElse(typeClass.getPackage().getName());
+                    chooseBoundContext(packageInfo).orElse(typeClass.getPackage().getName());
             relationDefinitionList.add(RelationDefinition.of(
                     packageName + "::" + classInfo.getSimpleName(), getStringValue(annotationInfo,UmlConstant.VALUE),
                     boundCtx + "::" + typeClass.getSimpleName()));

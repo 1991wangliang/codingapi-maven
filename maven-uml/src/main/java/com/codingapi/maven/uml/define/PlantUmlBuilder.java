@@ -7,6 +7,7 @@ import com.codingapi.maven.uml.annotation.Model;
 import com.codingapi.maven.uml.builder.UmlPlantUMLWriter;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ScanResult;
 import lombok.SneakyThrows;
 
 import java.nio.file.Paths;
@@ -30,11 +31,12 @@ public class PlantUmlBuilder {
     public void run() {
         try (UmlPlantUMLWriter umlWriter = new UmlPlantUMLWriter(Paths.get(generatePath))) {
             umlWriter.header();
-            new ClassGraph()
+            ClassGraph classGraph = new ClassGraph()
                     .addClassLoader(classLoader)
                     .verbose()
                     .enableAllInfo()
-                    .whitelistPackages(basePackage)
+                    .whitelistPackages(basePackage);
+            classGraph
                     .scan()
                     .getAllClasses()
                     .stream()
@@ -42,7 +44,7 @@ public class PlantUmlBuilder {
                     .filter(classInfo -> classInfo.getAnnotationInfo(Model.class.getName()) != null)
                     .filter(classInfo -> !classInfo.isAnnotation())
                     .map(classInfo -> {
-                        return this.classInfoParser(classInfo);
+                        return this.classInfoParser(classGraph.scan(),classInfo);
                     }).collect(Collectors.toList())
                     .forEach(umlWriter::write);
             umlWriter.footer();
@@ -50,8 +52,8 @@ public class PlantUmlBuilder {
     }
 
 
-    private ModelDefinition classInfoParser(ClassInfo classInfo) {
-        ModelDefinitionParser modelDefinitionParser = new ModelDefinitionParser(classInfo);
+    private ModelDefinition classInfoParser(ScanResult scanResult, ClassInfo classInfo) {
+        ModelDefinitionParser modelDefinitionParser = new ModelDefinitionParser(scanResult,classInfo);
         return modelDefinitionParser.parser();
     }
 

@@ -1,6 +1,7 @@
 package com.codingapi.maven.uml;
 
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -16,6 +17,7 @@ class UmlMojoTest {
 
 
     @Test
+    @SneakyThrows
     void execute() {
 //        [INFO] sourceDir:/Users/Shared/Previously Relocated Items/Security/developer/idea/gitee/evaluate/evaluate-domain/src/main/java
 //        [INFO] scannerPackage:com.codingapi.evaluate.domain
@@ -27,4 +29,6 @@ class UmlMojoTest {
         String scannerPackage = "com.codingapi.evaluate.domain";
         umlMojo.run(outputDirectory,outputPath,scannerPackage);
     }
+
+
 }
