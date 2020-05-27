@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.util.Objects;
 
-@ValueObjectModel(title = "关系定义")
+@ValueObjectModel(value = "关系定义")
 @Data
 public class RelationDefinition {
     private String relLeft;

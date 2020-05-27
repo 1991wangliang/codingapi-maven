@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Model(flag = "E", color = "#FFEE00", title = "")
+@Model(flag = "E", color = "#FFEE00", value = "")
 public @interface EntityModel {
-    String title();
+    String value();
 }

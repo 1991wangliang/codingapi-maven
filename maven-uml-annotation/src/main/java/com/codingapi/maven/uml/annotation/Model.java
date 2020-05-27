@@ -11,6 +11,6 @@ public @interface Model {
 
     String color();
 
-    String title();
+    String value();
 
 }

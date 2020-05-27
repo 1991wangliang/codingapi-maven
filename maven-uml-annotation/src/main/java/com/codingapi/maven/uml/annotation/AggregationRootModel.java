@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Model(flag = "A", color = "#FFEE00", title = "")
+@Model(flag = "A", color = "#FFEE00", value = "")
 public @interface AggregationRootModel {
-    String title();
+    String value();
 }

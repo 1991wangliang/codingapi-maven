@@ -1,6 +1,7 @@
 package com.codingapi.maven.uml.define;
 
 import com.codingapi.maven.uml.annotation.*;
+import io.github.classgraph.AnnotationClassRef;
 import io.github.classgraph.AnnotationInfo;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.PackageInfo;
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.*;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,18 +31,18 @@ public class ModelDefinitionParser {
         ModelAnnotation modelAnnotation = new ModelAnnotation();
         modelAnnotation.setFlag(getStringValue(annotationInfo,UmlConstant.FLAG));
         modelAnnotation.setColor(getStringValue(annotationInfo,UmlConstant.COLOR));
-        modelAnnotation.setTitle(getStringValue(annotationInfo,UmlConstant.TITLE));
+        modelAnnotation.setValue(getStringValue(annotationInfo,UmlConstant.VALUE));
 
-        if (StringUtils.isEmpty(modelAnnotation.getTitle())) {
+        if (StringUtils.isEmpty(modelAnnotation.getValue())) {
             AnnotationInfo tmp = classInfo.getAnnotationInfo()
                     .stream()
-                    .filter(ai -> StringUtils.isNotEmpty(getStringValue(ai, UmlConstant.TITLE)))
+                    .filter(ai -> StringUtils.isNotEmpty(getStringValue(ai, UmlConstant.VALUE)))
                     .findAny()
                     .orElse(null);
             if (Objects.nonNull(tmp)) {
-                modelAnnotation.setTitle(getStringValue(tmp, UmlConstant.TITLE));
+                modelAnnotation.setValue(getStringValue(tmp, UmlConstant.VALUE));
             } else {
-                modelAnnotation.setTitle("");
+                modelAnnotation.setValue("");
             }
         }
         return modelAnnotation;
@@ -93,18 +95,14 @@ public class ModelDefinitionParser {
         return methodDefinitions;
     }
 
-    private List<RelationDefinition> relationDefinitions(String packageName) {
-        // Relations
-        List<RelationDefinition> relationDefinitionSet = new ArrayList<>(getFromFields(classInfo, packageName));
-        relationDefinitionSet.addAll(getFromMethods(classInfo));
-        relationDefinitionSet.addAll(getFromConstructor(classInfo));
-        return relationDefinitionSet;
-    }
-
-
 
     private String getStringValue(AnnotationInfo annotationInfo, String key) {
         return (String) annotationInfo.getParameterValues().getValue(key);
+    }
+
+    private Class<?> getClassValue(AnnotationInfo annotationInfo, String key) {
+        AnnotationClassRef annotationClassRef = (AnnotationClassRef) annotationInfo.getParameterValues().getValue(key);
+        return annotationClassRef.loadClass();
     }
 
     private Optional<String> chooseBoundContext(PackageInfo packageInfo) {
@@ -127,7 +125,7 @@ public class ModelDefinitionParser {
         }
 
         int idx = pk.getName().lastIndexOf('.');
-
+        System.out.println(pk.getName()+":"+pk.getName().substring(0, idx));
         Package parent = Package.getPackage(pk.getName().substring(0, idx));
         if (Objects.isNull(parent)) {
             return Optional.empty();
@@ -135,52 +133,39 @@ public class ModelDefinitionParser {
         return chooseBoundContext(parent);
     }
 
-    private Class<?> typeClass(Field field) {
-        Type type = field.getGenericType();
-        if (type instanceof ParameterizedType ) {
-            ParameterizedType parameterizedType = (ParameterizedType) type;
-            return (Class<?>) parameterizedType.getActualTypeArguments()[0];
-        }
-        return field.getType();
-    }
 
 
+    private List<RelationDefinition> relationDefinitions(String packageName) {
+        List<RelationDefinition> relationDefinitionList = new ArrayList<>();
 
-    private Set<RelationDefinition> getFromFields(ClassInfo classInfo, String packageName) {
-        Set<RelationDefinition> relationDefinitionSet = new HashSet<>();
+        Consumer<AnnotationInfo> consumer = annotationInfo -> {
+            Class<?> typeClass = getClassValue(annotationInfo,UmlConstant.TYPE);
+            String boundCtx =
+                    chooseBoundContext(typeClass.getPackage()).orElse(typeClass.getPackage().getName());
+            relationDefinitionList.add(RelationDefinition.of(
+                    packageName + "::" + classInfo.getSimpleName(), getStringValue(annotationInfo,UmlConstant.VALUE),
+                    boundCtx + "::" + typeClass.getSimpleName()));
+        };
+
         classInfo.getDeclaredFieldInfo()
-                .filter(fieldInfo -> fieldInfo.getAnnotationInfo(GraphRelation.class.getName())==null)
+                .filter(fieldInfo -> fieldInfo.getAnnotationInfo(GraphRelation.class.getName())!=null)
                 .forEach(fieldInfo -> {
-
-            Field field = fieldInfo.loadClassAndGetField();
-            GraphRelation graphPosition = field.getAnnotatedType().getAnnotation(GraphRelation.class);
-            if(graphPosition!=null) {
-
-                Class<?> typeClass = typeClass(field);
-                String boundCtx =
-                        chooseBoundContext(typeClass.getPackage()).orElse(typeClass.getPackage().getName());
-                relationDefinitionSet.add(RelationDefinition.of(
-                        packageName + "::" + classInfo.getSimpleName(), graphPosition.value(),
-                        boundCtx + "::" + typeClass.getSimpleName()));
-
-            }
+            AnnotationInfo annotationInfo = fieldInfo.getAnnotationInfo(GraphRelation.class.getName());
+            consumer.accept(annotationInfo);
         });
-        return relationDefinitionSet;
+
+        classInfo.getDeclaredMethodInfo()
+                .filter(fieldInfo -> fieldInfo.getAnnotationInfo(GraphRelation.class.getName())!=null)
+                .forEach(fieldInfo -> {
+                    AnnotationInfo annotationInfo = fieldInfo.getAnnotationInfo(GraphRelation.class.getName());
+                    consumer.accept(annotationInfo);
+                });
+
+        return relationDefinitionList;
     }
 
-    private Set<RelationDefinition> getFromMethods(ClassInfo classInfo) {
-        Set<RelationDefinition> relationDefinitionSet = new HashSet<>();
 
-        return relationDefinitionSet;
-    }
-
-    private Set<RelationDefinition> getFromConstructor(ClassInfo classInfo) {
-
-        Set<RelationDefinition> relationDefinitionSet = new HashSet<>();
-
-        return relationDefinitionSet;
-    }
-
+    @GraphRelation(value = ".left.>",type = ModelDefinition.class)
     public ModelDefinition parser() {
         // Package
         String packageName = chooseBoundContext(classInfo.getPackageInfo()).orElse(classInfo.getPackageName());

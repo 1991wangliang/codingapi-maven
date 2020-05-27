@@ -22,7 +22,7 @@ public class UmlPlantUMLWriter extends IPlantUMLWriter {
                 modelDefinition.getClassName(),
                 modelDefinition.getAnnotation().getFlag(),
                 modelDefinition.getAnnotation().getColor(),
-                modelDefinition.getAnnotation().getTitle()));
+                modelDefinition.getAnnotation().getValue()));
 
         modelDefinition.getFieldDefinitions().forEach(fieldDefinition -> {
             try {

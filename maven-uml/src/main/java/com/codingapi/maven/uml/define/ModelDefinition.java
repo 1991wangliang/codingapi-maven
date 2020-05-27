@@ -7,24 +7,24 @@ import lombok.Data;
 
 import java.util.List;
 
-@AggregationRootModel(title = "模型定义")
+@AggregationRootModel(value = "模型定义")
 @Data
 public class ModelDefinition {
     private String packageName;
 
     private String className;
 
-    @GraphRelation(value = ".right.>")
+    @GraphRelation(value = ".right.>",type = ModelAnnotation.class)
     @Title("模型注释")
     private ModelAnnotation annotation;
 
-    @GraphRelation(".left.>")
+    @GraphRelation(value = ".left.>",type = FieldDefinition.class)
     private List<FieldDefinition> fieldDefinitions;
 
-    @GraphRelation(".down.>")
+    @GraphRelation(value = ".down.>",type = MethodDefinition.class)
     private List<MethodDefinition> methodDefinitions;
 
-    @GraphRelation(".left.>")
+    @GraphRelation(value = ".left.>",type = RelationDefinition.class)
     private List<RelationDefinition> relationDefinitions;
 
     @Title("模型转字符串")

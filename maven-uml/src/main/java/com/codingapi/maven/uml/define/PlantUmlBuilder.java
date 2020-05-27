@@ -12,7 +12,7 @@ import lombok.SneakyThrows;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
-@AggregationRootModel(title = "生成PlantUML工具")
+@AggregationRootModel(value = "生成PlantUML工具")
 public class PlantUmlBuilder {
 
     private final String generatePath;
@@ -41,7 +41,9 @@ public class PlantUmlBuilder {
                     .filter(classInfo -> classInfo.getAnnotationInfo(Ignore.class.getName()) == null)
                     .filter(classInfo -> classInfo.getAnnotationInfo(Model.class.getName()) != null)
                     .filter(classInfo -> !classInfo.isAnnotation())
-                    .map(this::classInfoParser).collect(Collectors.toList())
+                    .map(classInfo -> {
+                        return this.classInfoParser(classInfo);
+                    }).collect(Collectors.toList())
                     .forEach(umlWriter::write);
             umlWriter.footer();
         }

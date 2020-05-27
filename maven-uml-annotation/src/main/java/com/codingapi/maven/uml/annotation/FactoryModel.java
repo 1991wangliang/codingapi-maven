@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Model(flag = "F", color = "#FFEE00", title = "")
+@Model(flag = "F", color = "#FFEE00", value = "")
 public @interface FactoryModel {
-    String title();
+    String value();
 }

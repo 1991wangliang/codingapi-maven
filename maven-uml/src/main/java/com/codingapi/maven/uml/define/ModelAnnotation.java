@@ -3,12 +3,12 @@ package com.codingapi.maven.uml.define;
 import com.codingapi.maven.uml.annotation.ValueObjectModel;
 import lombok.Getter;
 
-@ValueObjectModel(title = "模型注释")
+@ValueObjectModel(value = "模型注释")
 @Getter
 public class ModelAnnotation {
     private String flag;
     private String color;
-    private String title;
+    private String value;
 
     public void setFlag(String flag) {
         this.flag = flag;
@@ -18,7 +18,7 @@ public class ModelAnnotation {
         this.color = color;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setValue(String value) {
+        this.value = value;
     }
 }
