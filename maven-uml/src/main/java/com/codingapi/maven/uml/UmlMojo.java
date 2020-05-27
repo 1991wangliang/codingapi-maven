@@ -35,19 +35,24 @@ public class UmlMojo extends AbstractMojo {
     @Parameter(defaultValue = "${project}", readonly = true, required = true)
     private MavenProject project;
 
-
     @SneakyThrows
     public void execute() throws MojoExecutionException, MojoFailureException {
         getLog().info("sourceDir:" + sourceDir);
         getLog().info("scannerPackage:" + scannerPackage);
         getLog().info("outputDirectory:" + outputDirectory);
         getLog().info("outputPath:" + outputPath);
+        this.run(outputDirectory,outputPath,scannerPackage);
+    }
 
+    @SneakyThrows
+    protected void run(File outputDirectory,String outputPath,String scannerPackage){
         List<URL> urlList = new ArrayList<>();
         urlList.add(outputDirectory.toURL());
-        for (Object object : project.getCompileArtifacts()) {
-            Artifact artifact = (Artifact) object;
-            urlList.add(artifact.getFile().toURL());
+        if(project!=null) {
+            for (Object object : project.getCompileArtifacts()) {
+                Artifact artifact = (Artifact) object;
+                urlList.add(artifact.getFile().toURL());
+            }
         }
         URL[] urls = urlList.toArray(new URL[]{});
         try {

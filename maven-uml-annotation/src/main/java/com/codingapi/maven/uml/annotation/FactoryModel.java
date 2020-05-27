@@ -2,7 +2,7 @@ package com.codingapi.maven.uml.annotation;
 
 import java.lang.annotation.*;
 
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
 @Model(flag = "F", color = "#FFEE00", title = "")
