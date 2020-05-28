@@ -67,32 +67,31 @@ public class ModelDefinitionParser {
     }
 
     private List<MethodDefinition> methodDefinitionList() {
-
         // Methods
         List<MethodDefinition> methodDefinitions = new LinkedList<>();
-
-
         classInfo.getDeclaredMethodInfo().stream()
                 .filter(methodInfo -> methodInfo.getAnnotationInfo(Ignore.class.getName())==null)
                 .filter(methodInfo -> !methodInfo.getName().startsWith("lambda"))
                 .filter(methodInfo -> !filterMethod.contains(methodInfo.getName()))
                 .forEach(methodInfo -> {
-                    MethodDefinition methodDefinition = new MethodDefinition();
-                    methodDefinition.setAccessType(methodInfo.getModifiersStr());
-                    methodDefinition.setName(methodInfo.getName());
-                    methodDefinition.setReturnType(
-                            methodInfo.getTypeSignatureOrTypeDescriptor().getResultType().toStringWithSimpleNames());
+                    if(!modelDefinition.containsField(methodInfo.getName())) {
+                        MethodDefinition methodDefinition = new MethodDefinition();
+                        methodDefinition.setAccessType(methodInfo.getModifiersStr());
+                        methodDefinition.setName(methodInfo.getName());
+                        methodDefinition.setReturnType(
+                                methodInfo.getTypeSignatureOrTypeDescriptor().getResultType().toStringWithSimpleNames());
 
-                    methodDefinition.setParameterType(
-                            Stream.of(methodInfo.getParameterInfo())
-                                    .map(pi -> pi.getTypeSignatureOrTypeDescriptor().toStringWithSimpleNames())
-                                    .collect(Collectors.joining(", ")));
+                        methodDefinition.setParameterType(
+                                Stream.of(methodInfo.getParameterInfo())
+                                        .map(pi -> pi.getTypeSignatureOrTypeDescriptor().toStringWithSimpleNames())
+                                        .collect(Collectors.joining(", ")));
 
-                    AnnotationInfo remark = methodInfo.getAnnotationInfo(Title.class.getName());
-                    if (Objects.nonNull(remark)) {
-                        methodDefinition.setRemark(getStringValue(remark, UmlConstant.VALUE));
+                        AnnotationInfo remark = methodInfo.getAnnotationInfo(Title.class.getName());
+                        if (Objects.nonNull(remark)) {
+                            methodDefinition.setRemark(getStringValue(remark, UmlConstant.VALUE));
+                        }
+                        methodDefinitions.add(methodDefinition);
                     }
-                    methodDefinitions.add(methodDefinition);
                 });
         return methodDefinitions;
     }

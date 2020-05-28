@@ -21,6 +21,33 @@ public class ModelDefinition {
     @GraphRelation(value = ".left.>",type = FieldDefinition.class)
     private List<FieldDefinition> fieldDefinitions;
 
+
+    private String methodNameUpperCase(String methodName){
+        String method = methodName.toUpperCase();
+        if(method.startsWith("SET")) {
+            return  method.replaceFirst("SET","");
+        }
+        if(method.startsWith("GET")) {
+            return  method.replaceFirst("GET","");
+        }
+        if(method.startsWith("IS")) {
+            return  method.replaceFirst("IS","");
+        }
+        return method;
+    }
+
+
+    public boolean containsField(String methodName){
+        String method =methodNameUpperCase(methodName);
+        for (FieldDefinition fieldDefinition : fieldDefinitions) {
+            if(fieldDefinition.getName().toUpperCase().equals(method)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     @GraphRelation(value = ".down.>",type = MethodDefinition.class)
     private List<MethodDefinition> methodDefinitions;
 
