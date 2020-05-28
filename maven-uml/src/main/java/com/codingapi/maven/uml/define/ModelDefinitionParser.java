@@ -4,7 +4,6 @@ import com.codingapi.maven.uml.annotation.*;
 import io.github.classgraph.*;
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -134,7 +133,26 @@ public class ModelDefinitionParser {
                     packageName + "::" + classInfo.getSimpleName(), getStringValue(annotationInfo,UmlConstant.VALUE),
                     boundCtx + "::" + typeClass.getSimpleName()));
         };
-
+        classInfo.getDeclaredFieldInfo()
+                .filter(methodInfo -> methodInfo.getAnnotationInfo(GraphRelations.class.getName())!=null)
+                .forEach(methodInfo -> {
+                    AnnotationInfo annotationInfo = methodInfo.getAnnotationInfo(GraphRelations.class.getName());
+                    Object[] graphRelations = (Object[])annotationInfo.getParameterValues().getValue(UmlConstant.VALUE);
+                    for (Object relation:graphRelations){
+                        AnnotationInfo relationInfo = (AnnotationInfo)relation;
+                        consumer.accept(relationInfo);
+                    }
+                });
+        classInfo.getDeclaredMethodInfo()
+                .filter(fieldInfo -> fieldInfo.getAnnotationInfo(GraphRelations.class.getName())!=null)
+                .forEach(fieldInfo -> {
+                    AnnotationInfo annotationInfo = fieldInfo.getAnnotationInfo(GraphRelations.class.getName());
+                    Object[] graphRelations = (Object[])annotationInfo.getParameterValues().getValue(UmlConstant.VALUE);
+                    for (Object relation:graphRelations){
+                        AnnotationInfo relationInfo = (AnnotationInfo)relation;
+                        consumer.accept(relationInfo);
+                    }
+                });
         classInfo.getDeclaredFieldInfo()
                 .filter(fieldInfo -> fieldInfo.getAnnotationInfo(GraphRelation.class.getName())!=null)
                 .forEach(fieldInfo -> {
@@ -143,12 +161,11 @@ public class ModelDefinitionParser {
         });
 
         classInfo.getDeclaredMethodInfo()
-                .filter(fieldInfo -> fieldInfo.getAnnotationInfo(GraphRelation.class.getName())!=null)
-                .forEach(fieldInfo -> {
-                    AnnotationInfo annotationInfo = fieldInfo.getAnnotationInfo(GraphRelation.class.getName());
+                .filter(methodInfo -> methodInfo.getAnnotationInfo(GraphRelation.class.getName())!=null)
+                .forEach(methodInfo -> {
+                    AnnotationInfo annotationInfo = methodInfo.getAnnotationInfo(GraphRelation.class.getName());
                     consumer.accept(annotationInfo);
                 });
-
         return relationDefinitionList;
     }
 
