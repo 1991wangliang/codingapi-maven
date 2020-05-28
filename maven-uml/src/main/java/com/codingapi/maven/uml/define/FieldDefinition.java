@@ -5,7 +5,8 @@ import lombok.Data;
 
 @ValueObjectModel(value = "字段定义")
 @Data
-public class FieldDefinition {
+public class FieldDefinition extends IAccessTypeFlag{
+
     private String name;
     private String type;
     private String remark = "";

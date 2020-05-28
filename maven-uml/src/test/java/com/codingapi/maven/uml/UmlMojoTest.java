@@ -27,7 +27,8 @@ class UmlMojoTest {
         File outputDirectory = new File("E:\\developer\\idea\\gitee\\evaluate\\evaluate-domain\\target\\classes");
         String outputPath = "evaluate.puml";
         String scannerPackage = "com.codingapi.evaluate.domain";
-        umlMojo.run(outputDirectory,outputPath,scannerPackage);
+        String filterMethod = "equals,canEqual,hashCode,toString";
+        umlMojo.run(outputDirectory,outputPath,scannerPackage,filterMethod);
     }
 
 

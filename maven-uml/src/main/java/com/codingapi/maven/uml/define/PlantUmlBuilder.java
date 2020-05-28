@@ -19,12 +19,15 @@ public class PlantUmlBuilder {
     private final String generatePath;
     private final String basePackage;
     private final ClassLoader classLoader;
+    private final String filterMethod;
 
 
-    public PlantUmlBuilder(String generatePath, String basePackage, ClassLoader classLoader) {
+    public PlantUmlBuilder(String generatePath, String basePackage, ClassLoader classLoader,String filterMethod) {
         this.generatePath = generatePath;
         this.basePackage = basePackage;
         this.classLoader = classLoader;
+        this.filterMethod = filterMethod;
+
     }
 
     @SneakyThrows
@@ -53,7 +56,7 @@ public class PlantUmlBuilder {
 
 
     private ModelDefinition classInfoParser(ScanResult scanResult, ClassInfo classInfo) {
-        ModelDefinitionParser modelDefinitionParser = new ModelDefinitionParser(scanResult,classInfo);
+        ModelDefinitionParser modelDefinitionParser = new ModelDefinitionParser(scanResult,classInfo,filterMethod);
         return modelDefinitionParser.parser();
     }
 

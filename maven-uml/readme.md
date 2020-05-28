@@ -24,8 +24,10 @@ uml 插件是编写领域模型plantuml的插件,使用方式如下:
         <configuration>
           <!--        扫码的包路径       -->
           <scannerPackage>com.codingapi.txlcn.tc</scannerPackage>
-          <!-- markdown导出路径(相对路径) -->
+          <!-- uml导出路径(相对路径) -->
           <outputPath>txlcn-uml.puml</outputPath>
+          <!-- 全部过滤的公共方法 -->  
+          <filterMethod>equals,canEqual,hashCode,toString</filterMethod>  
         </configuration>
         <!--       插件执行时依赖的pom      -->
         <dependencies>

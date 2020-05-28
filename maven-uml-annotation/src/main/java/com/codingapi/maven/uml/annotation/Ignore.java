@@ -2,11 +2,11 @@ package com.codingapi.maven.uml.annotation;
 
 import java.lang.annotation.*;
 
-import static java.lang.annotation.ElementType.TYPE_PARAMETER;
-import static java.lang.annotation.ElementType.TYPE_USE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.TYPE;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.PARAMETER, TYPE_PARAMETER, TYPE_USE})
+@Target({ElementType.FIELD, METHOD, TYPE})
 @Documented
 public @interface Ignore {
 

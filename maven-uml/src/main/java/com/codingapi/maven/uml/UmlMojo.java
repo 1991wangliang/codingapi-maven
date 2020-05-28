@@ -26,6 +26,9 @@ public class UmlMojo extends AbstractMojo {
     @Parameter
     private String outputPath;
 
+    @Parameter
+    private String filterMethod;
+
     @Parameter(defaultValue = "${project.build.outputDirectory}", required = true, readonly = true)
     private File outputDirectory;
 
@@ -41,11 +44,12 @@ public class UmlMojo extends AbstractMojo {
         getLog().info("scannerPackage:" + scannerPackage);
         getLog().info("outputDirectory:" + outputDirectory);
         getLog().info("outputPath:" + outputPath);
-        this.run(outputDirectory,outputPath,scannerPackage);
+        getLog().info("filterMethod:" + filterMethod);
+        this.run(outputDirectory,outputPath,scannerPackage,filterMethod);
     }
 
     @SneakyThrows
-    protected void run(File outputDirectory,String outputPath,String scannerPackage){
+    protected void run(File outputDirectory,String outputPath,String scannerPackage,String filterMethod){
         List<URL> urlList = new ArrayList<>();
         urlList.add(outputDirectory.toURL());
         if(project!=null) {
@@ -60,7 +64,8 @@ public class UmlMojo extends AbstractMojo {
             new PlantUmlBuilder(
                     outputPath,
                     scannerPackage,
-                    classLoader
+                    classLoader,
+                    filterMethod
             ).run();
         } catch (Exception e) {
             e.printStackTrace();

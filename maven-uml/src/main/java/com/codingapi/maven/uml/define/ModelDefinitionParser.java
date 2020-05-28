@@ -15,10 +15,12 @@ public class ModelDefinitionParser {
     private ClassInfo classInfo;
     private ModelDefinition modelDefinition;
     private ScanResult scanResult;
+    private String filterMethod;
 
-    public ModelDefinitionParser(ScanResult scanResult, ClassInfo classInfo) {
+    public ModelDefinitionParser(ScanResult scanResult, ClassInfo classInfo,String filterMethod) {
         this.scanResult = scanResult;
         this.classInfo = classInfo;
+        this.filterMethod = filterMethod;
         this.modelDefinition = new ModelDefinition();
     }
 
@@ -53,6 +55,7 @@ public class ModelDefinitionParser {
                 .forEach(fieldInfo -> {
             FieldDefinition fieldDefinition = new FieldDefinition();
             fieldDefinition.setName(fieldInfo.getName());
+            fieldDefinition.setAccessType(fieldInfo.getModifierStr());
             fieldDefinition.setType(fieldInfo.getTypeSignatureOrTypeDescriptor().toStringWithSimpleNames());
 
             AnnotationInfo remark = fieldInfo.getAnnotationInfo(Title.class.getName());
@@ -69,11 +72,14 @@ public class ModelDefinitionParser {
         // Methods
         List<MethodDefinition> methodDefinitions = new LinkedList<>();
 
+
         classInfo.getDeclaredMethodInfo().stream()
                 .filter(methodInfo -> methodInfo.getAnnotationInfo(Ignore.class.getName())==null)
-                .filter(methodInfo -> methodInfo.getModifiers() == Modifier.PUBLIC)
+                .filter(methodInfo -> !methodInfo.getName().startsWith("lambda"))
+                .filter(methodInfo -> !filterMethod.contains(methodInfo.getName()))
                 .forEach(methodInfo -> {
                     MethodDefinition methodDefinition = new MethodDefinition();
+                    methodDefinition.setAccessType(methodInfo.getModifiersStr());
                     methodDefinition.setName(methodInfo.getName());
                     methodDefinition.setReturnType(
                             methodInfo.getTypeSignatureOrTypeDescriptor().getResultType().toStringWithSimpleNames());

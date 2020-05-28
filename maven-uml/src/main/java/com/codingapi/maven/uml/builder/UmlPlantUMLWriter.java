@@ -26,7 +26,8 @@ public class UmlPlantUMLWriter extends IPlantUMLWriter {
 
         modelDefinition.getFieldDefinitions().forEach(fieldDefinition -> {
             try {
-                fileWriter(String.format("\t-%s:%s %s\n",
+                fileWriter(String.format("\t%s%s:%s %s\n",
+                        fieldDefinition.getAccessTypeFlag(),
                         fieldDefinition.getName(),
                         fieldDefinition.getType(),
                         StringUtils.isNotEmpty(fieldDefinition.getRemark()) ? "<" + fieldDefinition.getRemark() + ">" : ""));
@@ -39,7 +40,8 @@ public class UmlPlantUMLWriter extends IPlantUMLWriter {
 
         modelDefinition.getMethodDefinitions().forEach(methodDefinition -> {
             try {
-                fileWriter(String.format("\t+%s(%s): %s %s\n",
+                fileWriter(String.format("\t%s%s(%s): %s %s\n",
+                        methodDefinition.getAccessTypeFlag(),
                         methodDefinition.getName(),
                         methodDefinition.getParameterType(),
                         methodDefinition.getReturnType(),
