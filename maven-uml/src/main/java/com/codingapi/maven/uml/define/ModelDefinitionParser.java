@@ -131,6 +131,23 @@ public class ModelDefinitionParser {
                     packageName + "::" + classInfo.getSimpleName(), getStringValue(annotationInfo,UmlConstant.VALUE),
                     boundCtx + "::" + typeClass.getSimpleName()));
         };
+
+        //对象关系: 继承、实现
+        classInfo.getAnnotationInfo()
+                .filter(annotationInfo -> annotationInfo.getName().equals(GraphRelation.class.getName()))
+                .forEach(consumer::accept);
+
+        classInfo.getAnnotationInfo()
+                .filter(annotationInfo -> annotationInfo.getName().equals(GraphRelations.class.getName()))
+                .forEach(annotationInfo -> {
+                    Object[] graphRelations = (Object[])annotationInfo.getParameterValues().getValue(UmlConstant.VALUE);
+                    for (Object relation:graphRelations){
+                        AnnotationInfo relationInfo = (AnnotationInfo)relation;
+                        consumer.accept(relationInfo);
+                    }
+                });
+
+        //参数的关系:关联、聚合、组合
         classInfo.getDeclaredFieldInfo()
                 .filter(methodInfo -> methodInfo.getAnnotationInfo(GraphRelations.class.getName())!=null)
                 .forEach(methodInfo -> {
@@ -141,6 +158,15 @@ public class ModelDefinitionParser {
                         consumer.accept(relationInfo);
                     }
                 });
+
+        classInfo.getDeclaredFieldInfo()
+                .filter(fieldInfo -> fieldInfo.getAnnotationInfo(GraphRelation.class.getName())!=null)
+                .forEach(fieldInfo -> {
+            AnnotationInfo annotationInfo = fieldInfo.getAnnotationInfo(GraphRelation.class.getName());
+            consumer.accept(annotationInfo);
+        });
+
+        //方法关系:依赖
         classInfo.getDeclaredMethodInfo()
                 .filter(fieldInfo -> fieldInfo.getAnnotationInfo(GraphRelations.class.getName())!=null)
                 .forEach(fieldInfo -> {
@@ -151,12 +177,6 @@ public class ModelDefinitionParser {
                         consumer.accept(relationInfo);
                     }
                 });
-        classInfo.getDeclaredFieldInfo()
-                .filter(fieldInfo -> fieldInfo.getAnnotationInfo(GraphRelation.class.getName())!=null)
-                .forEach(fieldInfo -> {
-            AnnotationInfo annotationInfo = fieldInfo.getAnnotationInfo(GraphRelation.class.getName());
-            consumer.accept(annotationInfo);
-        });
 
         classInfo.getDeclaredMethodInfo()
                 .filter(methodInfo -> methodInfo.getAnnotationInfo(GraphRelation.class.getName())!=null)
